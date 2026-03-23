@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: #0a0a0a;
+  color: #f0f0f0;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+/* Accent glow utility */
+.glow-accent {
+  box-shadow: 0 0 20px rgba(200, 240, 74, 0.12), 0 0 60px rgba(200, 240, 74, 0.04);
+}
+
+.ring-accent {
+  box-shadow: 0 0 0 1px rgba(200, 240, 74, 0.2);
+}
+
+/* Timer arc SVG */
+.timer-arc {
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* Session dot */
+.session-dot {
+  transition: background-color 0.3s ease;
+}
+@media (max-width: 580px) {
+  .sideBar {
+    width: 100% !important;
+  }
+}

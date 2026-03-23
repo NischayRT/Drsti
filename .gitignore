@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+renderer/node_modules/
+python-api/venv/
+
+# Build outputs
+dist/
+renderer/out/
+renderer/.next/
+python-api/dist/
+python-api/build/
+python-api/__pycache__/
+python-api/*.pyc
+
+# PyInstaller artifacts
+*.spec.bak
+python-api/build/
+
+# Environment — NEVER commit these
+.env
+.env.local
+.env.production
+renderer/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Large auto-downloaded model
+python-api/face_landmarker.task
+
+# App icons — add your own, don't commit binaries
+assets/icon.ico
+assets/icon.icns
+assets/icon.png
+
+# Misc
+npx
