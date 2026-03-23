@@ -35,7 +35,7 @@ export function SettingsProvider({ children }) {
   // Load from localStorage on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('focusguard-settings')
+      const saved = localStorage.getItem('AttentionOS-settings')
       if (saved) {
         setSettings(s => ({ ...s, ...JSON.parse(saved) }))
       }
@@ -47,7 +47,7 @@ export function SettingsProvider({ children }) {
   useEffect(() => {
     if (!loaded) return
     try {
-      localStorage.setItem('focusguard-settings', JSON.stringify(settings))
+      localStorage.setItem('AttentionOS-settings', JSON.stringify(settings))
     } catch (_) {}
   }, [settings, loaded])
 

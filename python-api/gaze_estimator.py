@@ -17,9 +17,9 @@ NOSE_TIP=1; CHIN=152; LEFT_EYE_L=226; RIGHT_EYE_R=446
 def get_model_path():
     """Return a writable path for the face landmarker model."""
     if getattr(sys, 'frozen', False):
-        # PyInstaller bundle — use AppData/Local/FocusGuard/models
+        # PyInstaller bundle — use AppData/Local/AttentionOS/models
         app_data = os.environ.get('LOCALAPPDATA', os.path.expanduser('~'))
-        model_dir = os.path.join(app_data, 'FocusGuard', 'models')
+        model_dir = os.path.join(app_data, 'AttentionOS', 'models')
     else:
         # Plain Python — use script directory
         model_dir = os.path.dirname(os.path.abspath(__file__))

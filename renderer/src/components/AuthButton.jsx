@@ -16,7 +16,7 @@ export default function AuthButton() {
     })
 
     // Handle OAuth deep link callback from Electron
-    // Supabase uses PKCE: focusguard://auth/callback?code=xxxx
+    // Supabase uses PKCE: AttentionOS://auth/callback?code=xxxx
     if (window.electronAPI?.onOAuthCallback) {
       window.electronAPI.onOAuthCallback(async (url) => {
         try {
@@ -66,7 +66,7 @@ export default function AuthButton() {
       provider: 'google',
       options: {
         skipBrowserRedirect: true,
-        redirectTo: 'focusguard://auth/callback',
+        redirectTo: 'AttentionOS://auth/callback',
       },
     })
     if (data?.url) {

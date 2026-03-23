@@ -1,5 +1,5 @@
 {
-  "name": "focusguard",
+  "name": "AttentionOS",
   "author": "Nischay Reddy Thigulla",
   "version": "1.0.0",
   "description": "AI-powered focus timer with gaze detection",
@@ -9,7 +9,7 @@
     "next:dev":   "cd renderer && npm run dev",
     "build":      "npm run build:next && npm run build:python",
     "build:next": "cd renderer && npm run build",
-    "build:python": "cd python-api && pip install pyinstaller && pyinstaller focusguard.spec --distpath dist/focusguard-api",
+    "build:python": "cd python-api && pip install pyinstaller && pyinstaller AttentionOS.spec --distpath dist/AttentionOS-api",
     "dist":       "npm run build && electron-builder",
     "dist:win":   "npm run build && electron-builder --win",
     "dist:mac":   "npm run build && electron-builder --mac",
@@ -22,8 +22,8 @@
     "wait-on":          "^7.2.0"
   },
   "build": {
-    "appId":       "com.focusguard.app",
-    "productName": "FocusGuard",
+    "appId":       "com.AttentionOS.app",
+    "productName": "AttentionOS",
     "copyright":   "Copyright © 2025 Nischay Reddy Thigulla",
     "asar":        false,
 
@@ -42,22 +42,22 @@
 
     "extraResources": [
       {
-        "from": "python-api/dist/focusguard-api.exe",
-        "to":   "focusguard-api.exe"
+        "from": "python-api/dist/AttentionOS-api.exe",
+        "to":   "AttentionOS-api.exe"
       }
     ],
 
     "protocols": [
       {
-        "name": "FocusGuard",
-        "schemes": ["focusguard"]
+        "name": "AttentionOS",
+        "schemes": ["AttentionOS"]
       }
     ],
 
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
       "icon":   "assets/icon.ico",
-      "artifactName": "FocusGuard-Setup-${version}.${ext}"
+      "artifactName": "AttentionOS-Setup-${version}.${ext}"
     },
 
     "nsis": {
@@ -67,18 +67,18 @@
       "uninstallerIcon":      "assets/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName":         "FocusGuard"
+      "shortcutName":         "AttentionOS"
     },
 
     "mac": {
       "target":   [{ "target": "dmg", "arch": ["x64", "arm64"] }],
       "icon":     "assets/icon.icns",
       "category": "public.app-category.productivity",
-      "artifactName": "FocusGuard-${version}-${arch}.${ext}"
+      "artifactName": "AttentionOS-${version}-${arch}.${ext}"
     },
 
     "dmg": {
-      "title":  "Install FocusGuard",
+      "title":  "Install AttentionOS",
       "icon":   "assets/icon.icns",
       "window": { "width": 540, "height": 380 }
     },
@@ -87,7 +87,7 @@
       "target":   [{ "target": "AppImage", "arch": ["x64"] }],
       "icon":     "assets/icon.png",
       "category": "Utility",
-      "artifactName": "FocusGuard-${version}.${ext}"
+      "artifactName": "AttentionOS-${version}.${ext}"
     },
 
     "publish": null

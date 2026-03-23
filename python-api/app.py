@@ -1,5 +1,5 @@
 """
-app.py — FocusGuard Python AI backend
+app.py — AttentionOS Python AI backend
 --------------------------------------
 Endpoints:
   POST /analyze        — analyze a base64 webcam frame
@@ -23,12 +23,12 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 # Determine writable directory for model file
 # When bundled by PyInstaller, sys._MEIPASS is the temp extraction dir (read-only)
-# Use AppData/Local/FocusGuard for persistent writable storage
+# Use AppData/Local/AttentionOS for persistent writable storage
 def get_model_dir():
     if getattr(sys, 'frozen', False):
         # Running as PyInstaller bundle
         app_data = os.environ.get('LOCALAPPDATA', os.path.expanduser('~'))
-        model_dir = os.path.join(app_data, 'FocusGuard', 'models')
+        model_dir = os.path.join(app_data, 'AttentionOS', 'models')
     else:
         # Running as plain Python script
         model_dir = os.path.dirname(os.path.abspath(__file__))
@@ -136,6 +136,6 @@ def session_end():
 
 
 if __name__ == "__main__":
-    print("FocusGuard AI backend starting on http://localhost:5000")
+    print("AttentionOS AI backend starting on http://localhost:5000")
     print("Press Ctrl+C to stop.\n")
     app.run(host="127.0.0.1", port=5000, debug=False, threaded=True)

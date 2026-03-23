@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 
-const STORAGE_KEY = 'focusguard-onboarded'
+const STORAGE_KEY = 'AttentionOS-onboarded'
 
 const slides = [
   {
@@ -14,7 +14,7 @@ const slides = [
       </svg>
     ),
     title: 'Focus smarter, not harder',
-    body: 'FocusGuard combines a Pomodoro timer with AI-powered gaze detection. Your webcam watches whether you\'re actually looking at your screen — not to record you, but to measure real focus time.',
+    body: 'AttentionOS combines a Pomodoro timer with AI-powered gaze detection. Your webcam watches whether you\'re actually looking at your screen — not to record you, but to measure real focus time.',
     points: [
       'Timer tracks your work sessions',
       'AI detects when you look away',

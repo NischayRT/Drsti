@@ -22,7 +22,7 @@ function App() {
 
   useEffect(() => {
     // Check if onboarding has been shown
-    const done = localStorage.getItem('focusguard-onboarded')
+    const done = localStorage.getItem('AttentionOS-onboarded')
     setOnboarded(!!done)
   }, [])
 
@@ -85,7 +85,7 @@ function App() {
               transition: 'all 0.5s',
             }}/>
           </div>
-          <span style={{ fontSize: 16, color: '#e3e3e3', letterSpacing: '0.2em' }}>FOCUSGUARD</span>
+          <span style={{ fontSize: 16, color: '#e3e3e3', letterSpacing: '0.2em' }}>AttentionOS</span>
         </div>
 
         {/* Center — status pill */}

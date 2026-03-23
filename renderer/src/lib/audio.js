@@ -1,4 +1,4 @@
-// audio.js — FocusGuard sound effects
+// audio.js — AttentionOS sound effects
 // Each function fires once; caller manages state to prevent repeats.
 
 function ctx() {
