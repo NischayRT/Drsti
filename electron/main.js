@@ -6,8 +6,8 @@ const fs     = require('fs')
 
 const isDev = !app.isPackaged
 
-// Register AttentionOS:// deep link for OAuth callback
-app.setAsDefaultProtocolClient('AttentionOS')
+// Register FocusGuard:// deep link for OAuth callback
+app.setAsDefaultProtocolClient('FocusGuard')
 
 // Single instance lock — required for deep links on Windows
 const gotLock = app.requestSingleInstanceLock()
@@ -20,10 +20,10 @@ let splashWindow = null
 let apiProcess   = null
 
 // ── Path resolution ──────────────────────────────────────────────────────────
-// In dev:  python-api/AttentionOS-api  (or run manually with python app.py)
-// In prod: resources/AttentionOS-api   (bundled by electron-builder)
+// In dev:  python-api/FocusGuard-api  (or run manually with python app.py)
+// In prod: resources/FocusGuard-api   (bundled by electron-builder)
 function getApiPath() {
-  const bin = 'AttentionOS-api.exe'
+  const bin = 'FocusGuard-api.exe'
   if (isDev) {
     // Dev: binary is in python-api/dist/ relative to project root
     return path.join(__dirname, '..', 'python-api', 'dist', bin)
@@ -104,7 +104,7 @@ function startPythonApi() {
     apiProcess = spawn(apiPath, [], {
       detached: false,
       stdio:    'ignore',
-      env:      { ...process.env, AttentionOS_ENV: 'production' },
+      env:      { ...process.env, FocusGuard_ENV: 'production' },
     })
 
     apiProcess.on('error', (err) => {
@@ -197,7 +197,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('notify-distraction', (_event, { message }) => {
   if (Notification.isSupported()) {
     new Notification({
-      title: 'AttentionOS',
+      title: 'FocusGuard',
       body:  message || 'You drifted — come back!',
     }).show()
   }
@@ -210,7 +210,7 @@ ipcMain.on('open-external', (_event, url) => {
   shell.openExternal(url)
 })
 
-// Handle OAuth deep link callback: AttentionOS://auth/callback#access_token=...
+// Handle OAuth deep link callback: FocusGuard://auth/callback#access_token=...
 app.on('open-url', (_event, url) => {
   if (mainWindow) {
     mainWindow.webContents.send('oauth-callback', url)
@@ -219,7 +219,7 @@ app.on('open-url', (_event, url) => {
 
 // Windows: deep link comes via second-instance
 app.on('second-instance', (_event, commandLine) => {
-  const url = commandLine.find(arg => arg.startsWith('AttentionOS://'))
+  const url = commandLine.find(arg => arg.startsWith('FocusGuard://'))
   if (url && mainWindow) {
     mainWindow.webContents.send('oauth-callback', url)
     mainWindow.show()

@@ -4,55 +4,71 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ── Dark theme (default) ── */
+:root, [data-theme="dark"] {
+  --bg:         #080808;
+  --bg-2:       #0a0a0a;
+  --bg-3:       #0d0d0d;
+  --surface:    #111111;
+  --border:     #141414;
+  --border-2:   #1e1e1e;
+  --border-3:   #252525;
+  --text:       #e8e8e8;
+  --text-2:     #a0a0a0;
+  --text-3:     #585858;
+  --text-4:     #383838;
+  --text-5:     #282828;
+  --accent:     #c8f04a;
+  --accent-dim: rgba(200,240,74,0.12);
+  --red:        #f06a4a;
+  --yellow:     #f0c84a;
+  --teal:       #4af0d4;
 }
 
-html,
-body {
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg:         #f5f5f0;
+  --bg-2:       #efefea;
+  --bg-3:       #e8e8e2;
+  --surface:    #ffffff;
+  --border:     #e0e0da;
+  --border-2:   #d0d0ca;
+  --border-3:   #c0c0ba;
+  --text:       #111111;
+  --text-2:     #444444;
+  --text-3:     #888888;
+  --text-4:     #aaaaaa;
+  --text-5:     #cccccc;
+  --accent:     #5a9e00;
+  --accent-dim: rgba(90,158,0,0.10);
+  --red:        #d44020;
+  --yellow:     #c08000;
+  --teal:       #0090a0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
   height: 100%;
-  background-color: #0a0a0a;
-  color: #f0f0f0;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   user-select: none;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: #111;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
-  border-radius: 2px;
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
 
-/* Accent glow utility */
 .glow-accent {
-  box-shadow: 0 0 20px rgba(200, 240, 74, 0.12), 0 0 60px rgba(200, 240, 74, 0.04);
+  box-shadow: 0 0 20px rgba(200,240,74,0.12), 0 0 60px rgba(200,240,74,0.04);
 }
+.timer-arc { transition: stroke-dashoffset 1s linear; }
 
-.ring-accent {
-  box-shadow: 0 0 0 1px rgba(200, 240, 74, 0.2);
-}
-
-/* Timer arc SVG */
-.timer-arc {
-  transition: stroke-dashoffset 1s linear;
-}
-
-/* Session dot */
-.session-dot {
-  transition: background-color 0.3s ease;
-}
 @media (max-width: 580px) {
-  .sideBar {
-    width: 100% !important;
-  }
+  .sideBar { width: 100% !important; }
 }

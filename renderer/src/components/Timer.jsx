@@ -3,14 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { playSessionChime } from '../lib/audio'
 
-const FOCUS_COLOR    = '#c8f04a'
+// Swap hardcoded hexes for CSS variables
+const FOCUS_COLOR    = 'var(--accent)'
 const DEFAULT_FOCUS  = 25 * 60
 const BREAK_DEFAULTS = { short: 5 * 60, long: 15 * 60 }
-const BREAK_COLORS   = { short: '#4af0d4', long: '#f04a8a' }
+const BREAK_COLORS   = { short: 'var(--teal)', long: 'var(--red)' }
 const BREAK_LABELS   = { short: 'SHORT BREAK', long: 'LONG BREAK' }
 
-// Module-level interval IDs — completely outside React's lifecycle.
-// React Strict Mode double-invokes effects but can't touch these.
 let _mainInterval  = null
 let _breakInterval = null
 let _alertInterval = null
@@ -55,8 +54,6 @@ function BreakTimer({ type, onDone, onDismiss }) {
   const [editMin,   setEditMin]   = useState('')
   const [editSec,   setEditSec]   = useState('')
 
-  const intervalRef = useRef(null)  // kept for legacy, unused
-  const alertRef    = useRef(null)   // kept for legacy, unused
   const audioCtxRef = useRef(null)
   const minRef = useRef(null)
   const secRef = useRef(null)
@@ -92,7 +89,6 @@ function BreakTimer({ type, onDone, onDismiss }) {
     return () => clearBreak()
   }, [running])
 
-  // Cleanup on unmount
   useEffect(() => () => { clearBreak(); clearAlert(); try { audioCtxRef.current?.close() } catch (_) {} }, [])
 
   function startAlert() {
@@ -155,7 +151,7 @@ function BreakTimer({ type, onDone, onDismiss }) {
     style: {
       width: 52, fontSize: 40, fontWeight: 300, color,
       background: 'transparent', border: 'none',
-      borderBottom: `1px solid ${color}50`, textAlign: 'center',
+      borderBottom: `1px solid var(--border-3)`, textAlign: 'center',
       fontFamily: 'inherit', outline: 'none', letterSpacing: '-0.03em', lineHeight: 1,
     }
   })
@@ -168,16 +164,16 @@ function BreakTimer({ type, onDone, onDismiss }) {
     return (
       <div style={{
         padding: '20px 28px', borderRadius: 16,
-        background: '#0e0e0e', border: `1px solid ${color}30`,
+        background: 'var(--bg-3)', border: `1px solid var(--border)`,
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
         animation: 'breakIn 0.3s ease',
       }}>
         <div style={{ fontSize: 12, color, letterSpacing: '0.18em' }}>BREAK OVER</div>
         <div style={{ fontSize: 40, color, fontWeight: 300 }}>{alertSecs}s</div>
-        <div style={{ fontSize: 14, color: '#484848', letterSpacing: '0.1em' }}>STARTING FOCUS TIMER...</div>
+        <div style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.1em' }}>STARTING FOCUS TIMER...</div>
         <button onClick={dismissAlert} style={{
           marginTop: 4, padding: '8px 20px', borderRadius: 8, cursor: 'pointer',
-          background: color, color: '#080808', border: 'none',
+          background: color, color: 'var(--bg)', border: 'none',
           fontSize: 14, fontFamily: 'inherit', letterSpacing: '0.12em',
         }}>
           START NOW
@@ -190,21 +186,21 @@ function BreakTimer({ type, onDone, onDismiss }) {
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       padding: '20px 28px', borderRadius: 16,
-      background: '#0e0e0e', border: `1px solid ${color}20`,
+      background: 'var(--bg-3)', border: `1px solid var(--border)`,
       animation: 'breakIn 0.3s ease',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
         <span style={{ fontSize: 12, color, letterSpacing: '0.18em' }}>{BREAK_LABELS[type]}</span>
         <button onClick={onDismiss} style={{
           background: 'transparent', border: 'none', cursor: 'pointer',
-          color: '#5f5f5f', fontSize: 16, lineHeight: 1, padding: 2,
+          color: 'var(--text-4)', fontSize: 16, lineHeight: 1, padding: 2,
         }}>×</button>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <div style={{ position: 'relative', width: SIZE, height: SIZE, flexShrink: 0 }}>
           <svg width={SIZE} height={SIZE} style={{ position: 'absolute', top: 0, left: 0 }}>
-            <circle cx={CX} cy={CX} r={R} fill="none" stroke="#161616" strokeWidth="2"/>
+            <circle cx={CX} cy={CX} r={R} fill="none" stroke="var(--border-2)" strokeWidth="2"/>
             {progress > 0.005 && (
               <circle cx={CX} cy={CX} r={R} fill="none"
                 stroke={color} strokeWidth="2" strokeLinecap="round"
@@ -220,14 +216,14 @@ function BreakTimer({ type, onDone, onDismiss }) {
               {editing === 'min'
                 ? <input {...digitInput(minRef, editMin, setEditMin, () => commitEdit('min', editMin), e => handleKey(e, 'min', editMin))}/>
                 : <span onClick={() => { if (!canEdit) return; setEditMin(Math.floor(timeLeft/60).toString()); setEditing('min') }}
-                    style={{ fontSize: 40, fontWeight: 300, color: '#e8e8e8', letterSpacing: '-0.03em', cursor: canEdit ? 'pointer' : 'default' }}
+                    style={{ fontSize: 40, fontWeight: 300, color: 'var(--text)', letterSpacing: '-0.03em', cursor: canEdit ? 'pointer' : 'default' }}
                   >{m}</span>
               }
               <span style={{ fontSize: 30, color, margin: '0 2px', opacity: running ? (tick ? 1 : 0.1) : 0.5, transition: 'opacity 0.1s' }}>:</span>
               {editing === 'sec'
                 ? <input {...digitInput(secRef, editSec, setEditSec, () => commitEdit('sec', editSec), e => handleKey(e, 'sec', editSec))}/>
                 : <span onClick={() => { if (!canEdit) return; setEditSec((timeLeft%60).toString()); setEditing('sec') }}
-                    style={{ fontSize: 40, fontWeight: 300, color: '#e8e8e8', letterSpacing: '-0.03em', cursor: canEdit ? 'pointer' : 'default' }}
+                    style={{ fontSize: 40, fontWeight: 300, color: 'var(--text)', letterSpacing: '-0.03em', cursor: canEdit ? 'pointer' : 'default' }}
                   >{s}</span>
               }
             </div>
@@ -237,10 +233,10 @@ function BreakTimer({ type, onDone, onDismiss }) {
         <button onClick={() => { setEditing(null); setRunning(r => !r) }} style={{
           width: 44, height: 44, borderRadius: '50%', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: running ? '#141414' : color,
-          color: running ? color : '#080808',
-          border: running ? `1px solid ${color}30` : 'none',
-          boxShadow: running ? 'none' : `0 0 20px ${color}25`,
+          background: running ? 'var(--bg-2)' : color,
+          color: running ? color : 'var(--bg)',
+          border: running ? `1px solid var(--border)` : 'none',
+          boxShadow: running ? 'none' : '0 0 20px var(--accent-dim)',
           transition: 'all 0.2s', flexShrink: 0,
         }}>
           {running
@@ -250,7 +246,7 @@ function BreakTimer({ type, onDone, onDismiss }) {
         </button>
       </div>
 
-      {canEdit && <span style={{ fontSize: 12, color: '#303030', letterSpacing: '0.12em' }}>CLICK TIME TO EDIT</span>}
+      {canEdit && <span style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.12em' }}>CLICK TIME TO EDIT</span>}
     </div>
   )
 }
@@ -272,11 +268,10 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
   const minRef = useRef(null)
   const secRef = useRef(null)
 
-  const intervalRef     = useRef(null)
   const focusRef        = useRef(false)
-  const focusScoreRef   = useRef(focusScore)  // always-current focusScore for interval closure
-  const awayCountRef    = useRef(0)      // seconds where AI said distracted / no face
-  const elapsedRef      = useRef(0)      // total elapsed seconds
+  const focusScoreRef   = useRef(focusScore) 
+  const awayCountRef    = useRef(0)      
+  const elapsedRef      = useRef(0)      
   const extRef          = useRef(0)
   const durRef          = useRef(DEFAULT_FOCUS)
   const breaksRef       = useRef(0)
@@ -295,7 +290,6 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
   const isPaused       = !running && timeLeft > 0 && timeLeft < totalDuration
   const canEdit        = !running && timeLeft === totalDuration
 
-  // Keep refs in sync
   useEffect(() => { focusRef.current  = !isDistracted && focusScore !== null }, [isDistracted, focusScore])
   useEffect(() => { focusScoreRef.current = focusScore }, [focusScore])
   useEffect(() => { extRef.current    = extended },      [extended])
@@ -310,7 +304,6 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
 
   useEffect(() => {
     if (!running) { clearMain(); return }
-    // If timer has ended, reset all state and fall through to start the interval
     if (timeLeftRef.current <= 0 || completedRef.current) {
       const dur = durRef.current
       timeLeftRef.current = dur
@@ -323,7 +316,7 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
       setBreakType(null)
       setBreaksTaken(0); breaksRef.current = 0
     }
-    if (_mainInterval) return  // already ticking
+    if (_mainInterval) return
 
     _mainInterval = setInterval(() => {
       setTimeLeft(prev => {
@@ -332,7 +325,7 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
         if (prev <= 1) {
           clearMain()
           const totalDur  = durRef.current + extRef.current * 60
-          elapsedRef.current += 1                        // count this final tick
+          elapsedRef.current += 1 
           const elapsed   = elapsedRef.current
           const awaySecs  = awayCountRef.current
           const focusSecs = Math.max(0, Math.floor((elapsed - awaySecs) ))
@@ -354,11 +347,9 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
 
         setTick(t => !t)
         elapsedRef.current += 1
-        // Count away seconds (when AI is active but user is distracted / not visible)
         if (focusScoreRef.current !== null && !focusRef.current) {
           awayCountRef.current += 1
         }
-        // Derive focus time and sync to state every 5s
         const derivedFocus = Math.max(0, Math.floor((elapsedRef.current - awayCountRef.current) ))
         if (elapsedRef.current % 5 === 0) setFocusTime(derivedFocus)
         return prev - 1
@@ -417,11 +408,9 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
   }
 
   function handleBreakDone() {
-    // Only resume if session hasn't already completed
     if (completedRef.current) return
     setBreaksTaken(b => { const n = b + 1; breaksRef.current = n; return n })
     setBreakType(null)
-    // Use a small delay so breakType unmounts cleanly before running flips
     setTimeout(() => {
       if (!completedRef.current) setRunning(true)
     }, 80)
@@ -434,12 +423,12 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
   const statusText  = running
     ? (isDistracted ? 'DISTRACTED' : 'FOCUSED')
     : canEdit ? 'READY · CLICK TIME TO EDIT' : 'PAUSED'
-  const statusColor = running ? (isDistracted ? '#f0c84a' : color) : 'rgb(116 116 116)'
+  const statusColor = running ? (isDistracted ? 'var(--yellow)' : color) : 'var(--text-3)'
 
   const iconBtn = {
     width: 44, height: 44, borderRadius: '50%',
-    background: 'transparent', border: '1px solid #1e1e1e',
-    color: '#484848', cursor: 'pointer',
+    background: 'transparent', border: '1px solid var(--border-2)',
+    color: 'var(--text-2)', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'all 0.15s', fontFamily: 'inherit', fontSize: 12,
   }
@@ -451,7 +440,7 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
     style: {
       width: 90, fontSize: 72, fontWeight: 300, color,
       background: 'transparent', border: 'none',
-      borderBottom: `1.5px solid ${color}50`, textAlign: 'center',
+      borderBottom: `1.5px solid var(--border-3)`, textAlign: 'center',
       fontFamily: 'inherit', outline: 'none', letterSpacing: '-0.04em', lineHeight: 1,
     }
   })
@@ -462,11 +451,11 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
       {/* Ring */}
       <div style={{ position: 'relative', width: SIZE, height: SIZE }}>
         {running && (
-          <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', boxShadow: `0 0 80px ${color}0d`, pointerEvents: 'none' }}/>
+          <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', boxShadow: '0 0 80px var(--accent-dim)', pointerEvents: 'none' }}/>
         )}
         <svg width={SIZE} height={SIZE} style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible' }}>
-          <circle cx={CX} cy={CX} r={R + 14} fill="none" stroke="#0d0d0d" strokeWidth="1"/>
-          <circle cx={CX} cy={CX} r={R}       fill="none" stroke="#161616" strokeWidth="2"/>
+          <circle cx={CX} cy={CX} r={R + 14} fill="none" stroke="var(--border)" strokeWidth="1"/>
+          <circle cx={CX} cy={CX} r={R}       fill="none" stroke="var(--border-2)" strokeWidth="2"/>
           {progress > 0.005 && (
             <circle cx={CX} cy={CX} r={R} fill="none"
               stroke={color} strokeWidth="2.5" strokeLinecap="round"
@@ -484,8 +473,8 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
               ? <input {...digitInput(minRef, editMin, setEditMin, () => commitEdit('min', editMin), e => handleKey(e, 'min', editMin))}/>
               : <span onClick={() => { if (!canEdit) return; setEditMin(Math.floor(timeLeft/60).toString()); setEditing('min') }}
                   title={canEdit ? 'Click to edit minutes' : ''}
-                  style={{ fontSize: 72, fontWeight: 300, color: '#e8e8e8', letterSpacing: '-0.04em', cursor: canEdit ? 'pointer' : 'default', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }}
-                  onMouseEnter={e => { if (canEdit) e.target.style.borderBottom = `1px solid ${color}30` }}
+                  style={{ fontSize: 72, fontWeight: 300, color: 'var(--text)', letterSpacing: '-0.04em', cursor: canEdit ? 'pointer' : 'default', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }}
+                  onMouseEnter={e => { if (canEdit) e.target.style.borderBottom = `1px solid var(--border-3)` }}
                   onMouseLeave={e => { e.target.style.borderBottom = '1px solid transparent' }}
                 >{m}</span>
             }
@@ -494,8 +483,8 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
               ? <input {...digitInput(secRef, editSec, setEditSec, () => commitEdit('sec', editSec), e => handleKey(e, 'sec', editSec))}/>
               : <span onClick={() => { if (!canEdit) return; setEditSec((timeLeft%60).toString()); setEditing('sec') }}
                   title={canEdit ? 'Click to edit seconds' : ''}
-                  style={{ fontSize: 72, fontWeight: 300, color: '#e8e8e8', letterSpacing: '-0.04em', cursor: canEdit ? 'pointer' : 'default', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }}
-                  onMouseEnter={e => { if (canEdit) e.target.style.borderBottom = `1px solid ${color}30` }}
+                  style={{ fontSize: 72, fontWeight: 300, color: 'var(--text)', letterSpacing: '-0.04em', cursor: canEdit ? 'pointer' : 'default', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }}
+                  onMouseEnter={e => { if (canEdit) e.target.style.borderBottom = `1px solid var(--border-3)` }}
                   onMouseLeave={e => { e.target.style.borderBottom = '1px solid transparent' }}
                 >{s}</span>
             }
@@ -504,7 +493,7 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
           {focusScore !== null && (running || focusTime > 0) && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: color, opacity: isTrulyFocused ? 1 : 0.2, transition: 'opacity 0.4s' }}/>
-              <span style={{ fontSize: 12, color: '#484848', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.08em' }}>
                 {fmtFocus(focusTime)} focused
               </span>
             </div>
@@ -527,10 +516,10 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
         <button onClick={() => { setEditing(null); setBreakType(null); setRunning(r => !r) }} style={{
           width: 68, height: 68, borderRadius: '50%', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: running ? '#101010' : color,
-          color: running ? color : '#080808',
-          border: running ? `1px solid ${color}25` : 'none',
-          boxShadow: running ? 'none' : `0 0 36px ${color}30`,
+          background: running ? 'var(--bg-3)' : color,
+          color: running ? color : 'var(--bg)',
+          border: running ? `1px solid var(--border)` : 'none',
+          boxShadow: running ? 'none' : '0 0 36px var(--accent-dim)',
           transition: 'all 0.2s',
         }}>
           {running
@@ -545,17 +534,17 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
         </button>
       </div>
 
-      {/* Break buttons — paused mid-session only */}
+      {/* Break buttons */}
       {isPaused && !breakType && (
         <div style={{ display: 'flex', gap: 8, animation: 'breakIn 0.25s ease' }}>
           {['short', 'long'].map(type => (
             <button key={type} onClick={() => setBreakType(type)} style={{
               padding: '8px 20px', borderRadius: 10, cursor: 'pointer',
-              background: 'transparent', border: `1px solid ${BREAK_COLORS[type]}30`,
+              background: 'transparent', border: `1px solid var(--border)`,
               color: BREAK_COLORS[type], fontSize: 14, fontFamily: 'inherit',
               letterSpacing: '0.12em', transition: 'all 0.15s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.background = `${BREAK_COLORS[type]}10` }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-3)' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
             >
               {BREAK_LABELS[type]}
@@ -575,7 +564,7 @@ export default function Timer({ onSessionComplete, onRunningChange, focusScore, 
       )}
 
       {breaksTaken > 0 && !breakType && (
-        <span style={{ fontSize: 14, color: '#5f5f5f', letterSpacing: '0.12em' }}>
+        <span style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.12em' }}>
           {breaksTaken} break{breaksTaken > 1 ? 's' : ''} taken
         </span>
       )}

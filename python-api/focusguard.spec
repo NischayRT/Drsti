@@ -1,5 +1,5 @@
-# AttentionOS.spec
-# Run from python-api/ with: pyinstaller AttentionOS.spec
+# focusguard.spec
+# Run from python-api/ with: pyinstaller focusguard.spec
 
 import sys
 from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_all
@@ -87,7 +87,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='AttentionOS-api',
+    name='focusguard-api',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

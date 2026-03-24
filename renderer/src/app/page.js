@@ -10,19 +10,18 @@ import Onboarding from '../components/Onboarding'
 import { SettingsProvider, useSettings } from '../lib/settings'
 import { supabase } from '../lib/supabase'
 
-// Inner component so it can use useSettings
 function App() {
   const { settings, thresholds } = useSettings()
-  const [sessions,     setSessions]     = useState(0)
-  const [timerRunning, setTimerRunning] = useState(false)
-  const [focusData,    setFocusData]    = useState(null)
-  const [report,       setReport]       = useState(null)
-  const [user,         setUser]         = useState(null)
-  const [onboarded,    setOnboarded]    = useState(true) // true until checked
+  const [sessions,       setSessions]       = useState(0)
+  const [timerRunning,   setTimerRunning]   = useState(false)
+  const [focusData,      setFocusData]      = useState(null)
+  const [report,         setReport]         = useState(null)
+  const [user,           setUser]           = useState(null)
+  const [onboarded,      setOnboarded]      = useState(true)
+  const [totalFocusTime, setTotalFocusTime] = useState(0)
 
   useEffect(() => {
-    // Check if onboarding has been shown
-    const done = localStorage.getItem('AttentionOS-onboarded')
+    const done = localStorage.getItem('focusguard-onboarded')
     setOnboarded(!!done)
   }, [])
 
@@ -43,34 +42,35 @@ function App() {
   function handleSessionComplete(count, sessionReport) {
     setSessions(count)
     setReport({ ...sessionReport, distractions: 0 })
+    setTotalFocusTime(t => t + (sessionReport.focusTime || 0))
   }
 
   const isDistracted = focusData ? (!focusData.face_detected || focusData.looking_away) : false
-  const dotColor = timerRunning ? (isDistracted ? '#f0c84a' : '#c8f04a') : '#ff0000'
+  const dotColor = timerRunning
+    ? (isDistracted ? 'var(--yellow)' : 'var(--accent)')
+    : 'var(--red)'
 
   return (
     <div style={{
-      width: '100vw',
+      width: '100vw', height: '100vh',
       display: 'flex', flexDirection: 'column',
-      background: '#080808', overflow: 'hidden',
+      background: 'var(--bg)', overflow: 'hidden',
       fontFamily: "'JetBrains Mono', monospace",
+      color: 'var(--text)',
     }}>
 
-      {/* Onboarding */}
       {!onboarded && <Onboarding onDone={() => setOnboarded(true)} />}
 
-      {/* ── Navbar ── */}
+      {/* Navbar */}
       <div style={{
         height: 56, minHeight: 56, flexShrink: 0,
         display: 'flex', alignItems: 'center',
         padding: '0 20px',
-        borderBottom: '1px solid #141414',
-        background: '#0a0a0a',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--bg-2)',
         WebkitAppRegion: 'drag',
-        position: 'relative',
-        zIndex: 10,
+        position: 'relative', zIndex: 10,
       }}>
-        {/* Left — logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, WebkitAppRegion: 'no-drag' }}>
           <div style={{
             width: 30, height: 30, borderRadius: 8,
@@ -85,39 +85,35 @@ function App() {
               transition: 'all 0.5s',
             }}/>
           </div>
-          <span style={{ fontSize: 16, color: '#e3e3e3', letterSpacing: '0.2em' }}>AttentionOS</span>
+          <span style={{ fontSize: 16, color: 'var(--text)', letterSpacing: '0.2em' }}>FOCUSGUARD</span>
         </div>
 
-        {/* Center — status pill */}
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           {timerRunning && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 7,
               padding: '5px 14px', borderRadius: 20,
-              background: '#0e0e0e', border: '1px solid #1c1c1c',
+              background: 'var(--bg-3)', border: '1px solid var(--border-2)',
             }}>
               <div style={{
                 width: 5, height: 5, borderRadius: '50%',
                 background: dotColor, boxShadow: `0 0 6px ${dotColor}`,
                 animation: 'blink 2s ease-in-out infinite',
               }}/>
-              <span style={{ fontSize: 14, color: '#505050', letterSpacing: '0.14em' }}>
+              <span style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.14em' }}>
                 {isDistracted ? 'DISTRACTED' : 'IN FOCUS'}
               </span>
             </div>
           )}
         </div>
 
-        {/* Right — auth */}
         <div style={{ marginLeft: 'auto', WebkitAppRegion: 'no-drag', display: 'flex', alignItems: 'center' }}>
           <AuthButton />
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', overflow: 'hidden', minHeight: 0 }}>
-
-        {/* Center */}
+      {/* Body */}
+      <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', overflowX: 'hidden', minHeight: 0 }}>
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '32px 40px', minWidth: 300, overflow: 'hidden', maxHeight: 600,
@@ -135,10 +131,9 @@ function App() {
           />
         </div>
 
-        {/* Right panel */}
         <div style={{
           width: 280, minWidth: 280, flexShrink: 0,
-          borderLeft: '1px solid #141414', background: '#0a0a0a',
+          borderLeft: '1px solid var(--border)', background: 'var(--bg-2)',
           display: 'flex', flexDirection: 'column',
           padding: '20px 18px', gap: 18, overflowY: 'auto',
         }} className="sideBar">
@@ -149,8 +144,14 @@ function App() {
             soundEnabled={settings.soundEnabled}
             volume={settings.volume}
           />
-          <div style={{ height: 1, background: '#141414', flexShrink: 0 }} />
-          <Sidebar sessions={sessions} running={timerRunning} mode="focus" user={user} />
+          <div style={{ height: 1, background: 'var(--border)', flexShrink: 0 }} />
+          <Sidebar
+            sessions={sessions}
+            running={timerRunning}
+            mode="focus"
+            user={user}
+            totalFocusTime={totalFocusTime}
+          />
         </div>
       </div>
 
@@ -177,4 +178,3 @@ export default function Home() {
     </SettingsProvider>
   )
 }
-

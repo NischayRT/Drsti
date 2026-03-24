@@ -3,7 +3,7 @@ REM scripts/build.bat - Windows production build
 REM Run from project root: scripts\build.bat
 
 echo.
-echo === AttentionOS Production Build (Windows) ===
+echo === FocusGuard Production Build (Windows) ===
 echo.
 
 REM Step 1: Build Next.js
@@ -25,9 +25,9 @@ IF NOT EXIST "face_landmarker.task" (
   python -c "from gaze_estimator import GazeEstimator; GazeEstimator()"
 )
 
-pyinstaller AttentionOS.spec --clean --noconfirm
+pyinstaller FocusGuard.spec --clean --noconfirm
 cd ..
-echo       Done - python-api\dist\AttentionOS-api\
+echo       Done - python-api\dist\FocusGuard-api\
 echo.
 
 REM Step 3: electron-builder

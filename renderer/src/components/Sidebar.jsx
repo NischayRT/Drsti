@@ -43,64 +43,64 @@ export default function Sidebar({ sessions, running, mode, user, totalFocusTime 
 
       {/* Today stats */}
       <div>
-        <div style={{ fontSize: 14, color: '#5f5f5f', letterSpacing: '0.18em', marginBottom: 12 }}>TODAY</div>
+        <div style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.18em', marginBottom: 12 }}>TODAY</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {[
-            { label: 'SESSIONS',   val: sessions || '—', color: '#c8f04a' },
-            { label: 'FOCUS TIME', val: fmtFocusTime(totalFocusTime), color: '#c8f04a' },
-            { label: 'STATUS',     val: running ? mode.toUpperCase() : 'IDLE', color: running ? '#c8f04a' : '#505050' },
-            { label: 'STREAK',     val: sessions >= 4 ? '🔥' : `${sessions}/4`, color: '#c8f04a' },
+            { label: 'SESSIONS',   val: sessions || '—', color: 'var(--accent)' },
+            { label: 'FOCUS TIME', val: fmtFocusTime(totalFocusTime), color: 'var(--accent)' },
+            { label: 'STATUS',     val: running ? mode.toUpperCase() : 'IDLE', color: running ? 'var(--accent)' : 'var(--text-4)' },
+            { label: 'STREAK',     val: sessions >= 4 ? '🔥' : `${sessions}/4`, color: 'var(--accent)' },
           ].map(({ label, val, color }) => (
             <div key={label} style={{
-              background: '#0d0d0d', border: '1px solid #181818',
+              background: 'var(--bg-3)', border: '1px solid var(--border)',
               borderRadius: 10, padding: '12px 14px',
             }}>
-              <div style={{ fontSize: 12, color: '#5f5f5f', letterSpacing: '0.14em', marginBottom: 6 }}>{label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.14em', marginBottom: 6 }}>{label}</div>
               <div style={{ fontSize: 15, color, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{val}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ height: 1, background: '#141414' }}/>
+      <div style={{ height: 1, background: 'var(--border)' }}/>
 
       {/* History */}
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, color: '#5f5f5f', letterSpacing: '0.18em', marginBottom: 12 }}>
+        <div style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.18em', marginBottom: 12 }}>
           {user ? 'RECENT SESSIONS' : 'HISTORY'}
         </div>
 
         {!user && (
           <div style={{
-            background: '#0d0d0d', border: '1px solid #181818',
+            background: 'var(--bg-3)', border: '1px solid var(--border)',
             borderRadius: 10, padding: '18px 14px', textAlign: 'center',
           }}>
-            <div style={{ fontSize: 14, color: '#303030', letterSpacing: '0.1em', lineHeight: 2 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-2)', letterSpacing: '0.1em', lineHeight: 2 }}>
               SIGN IN TO SAVE<br/>& VIEW HISTORY
             </div>
           </div>
         )}
 
         {user && history.length === 0 && (
-          <div style={{ fontSize: 14, color: '#303030', letterSpacing: '0.1em' }}>NO SESSIONS YET</div>
+          <div style={{ fontSize: 14, color: 'var(--text-2)', letterSpacing: '0.1em' }}>NO SESSIONS YET</div>
         )}
 
         {user && history.map((s) => (
           <div key={s.id} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '10px 0', borderBottom: '1px solid #111',
+            padding: '10px 0', borderBottom: '1px solid var(--border)',
           }}>
             <div>
-              <div style={{ fontSize: 14, color: '#505050', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.06em' }}>
                 {fmtDate(s.created_at)} · {fmtSessionTime(s.duration)}
               </div>
-              <div style={{ fontSize: 14, color: '#303030', marginTop: 3 }}>
+              <div style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 3 }}>
                 {fmtSessionTime(s.focus_time)} focused
               </div>
             </div>
             <div style={{
               fontSize: 15,
-              color: s.focus_pct >= 70 ? '#c8f04a' : s.focus_pct >= 50 ? '#f0c84a' : '#f06a4a',
+              color: s.focus_pct >= 70 ? 'var(--accent)' : s.focus_pct >= 50 ? 'var(--yellow)' : 'var(--red)',
               fontFamily: "'JetBrains Mono', monospace",
             }}>
               {s.focus_pct}%
@@ -113,12 +113,12 @@ export default function Sidebar({ sessions, running, mode, user, totalFocusTime 
       <button onClick={() => setShowSettings(true)} style={{
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '10px 12px', borderRadius: 10, cursor: 'pointer',
-        background: '#0d0d0d', border: '1px solid #181818',
-        color: '#383838', width: '100%', transition: 'all 0.15s',
+        background: 'var(--bg-3)', border: '1px solid var(--border)',
+        color: 'var(--text-4)', width: '100%', transition: 'all 0.15s',
         fontFamily: "'JetBrains Mono', monospace",
       }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#252525'; e.currentTarget.style.color = '#505050' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#181818'; e.currentTarget.style.color = '#383838' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-3)'; e.currentTarget.style.color = 'var(--text-2)' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-4)' }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <circle cx="12" cy="12" r="3"/>
