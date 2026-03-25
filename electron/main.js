@@ -6,12 +6,19 @@ const fs     = require('fs')
 
 const isDev = !app.isPackaged
 
-// Register FocusGuard:// deep link for OAuth callback
-app.setAsDefaultProtocolClient('FocusGuard')
+// Queue deep link URLs that arrive before the window is ready
+let pendingOAuthUrl = null
 
-// Single instance lock — required for deep links on Windows
+// Register focusguard:// deep link for OAuth callback
+app.setAsDefaultProtocolClient('focusguard')
+
+// Single instance lock — MUST be called before app.whenReady()
+// On Windows, OAuth deep link opens a second instance with the URL as argv
+// The second instance quits immediately and fires second-instance on this one
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
+  // This is the second instance — extract URL and quit
+  // The primary instance handles it via second-instance event
   app.quit()
 }
 
@@ -20,10 +27,10 @@ let splashWindow = null
 let apiProcess   = null
 
 // ── Path resolution ──────────────────────────────────────────────────────────
-// In dev:  python-api/FocusGuard-api  (or run manually with python app.py)
-// In prod: resources/FocusGuard-api   (bundled by electron-builder)
+// In dev:  python-api/focusguard-api  (or run manually with python app.py)
+// In prod: resources/focusguard-api   (bundled by electron-builder)
 function getApiPath() {
-  const bin = 'FocusGuard-api.exe'
+  const bin = 'focusguard-api.exe'
   if (isDev) {
     // Dev: binary is in python-api/dist/ relative to project root
     return path.join(__dirname, '..', 'python-api', 'dist', bin)
@@ -84,6 +91,11 @@ function createMainWindow() {
     }
     mainWindow.show()
     mainWindow.focus()
+    // Deliver any OAuth URL that arrived before window was ready
+    if (pendingOAuthUrl) {
+      mainWindow.webContents.send('oauth-callback', pendingOAuthUrl)
+      pendingOAuthUrl = null
+    }
   })
 
   mainWindow.on('closed', () => { mainWindow = null })
@@ -104,7 +116,7 @@ function startPythonApi() {
     apiProcess = spawn(apiPath, [], {
       detached: false,
       stdio:    'ignore',
-      env:      { ...process.env, FocusGuard_ENV: 'production' },
+      env:      { ...process.env, FOCUSGUARD_ENV: 'production' },
     })
 
     apiProcess.on('error', (err) => {
@@ -146,6 +158,9 @@ function stopPythonApi() {
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
+  // Check if app was opened directly via deep link (first launch via protocol handler)
+  const deepLinkArg = process.argv.find(arg => arg.startsWith('focusguard://'))
+  if (deepLinkArg) pendingOAuthUrl = deepLinkArg
   // Intercept file:// requests — rewrite /_next/ paths to the correct out/ location
   // This fixes asset loading from nested pages like history/index.html
   const { protocol } = require('electron')
@@ -210,19 +225,34 @@ ipcMain.on('open-external', (_event, url) => {
   shell.openExternal(url)
 })
 
-// Handle OAuth deep link callback: FocusGuard://auth/callback#access_token=...
-app.on('open-url', (_event, url) => {
-  if (mainWindow) {
-    mainWindow.webContents.send('oauth-callback', url)
-  }
-})
-
-// Windows: deep link comes via second-instance
-app.on('second-instance', (_event, commandLine) => {
-  const url = commandLine.find(arg => arg.startsWith('FocusGuard://'))
-  if (url && mainWindow) {
-    mainWindow.webContents.send('oauth-callback', url)
+// Send OAuth URL to renderer — queues it if window isn't ready yet
+function deliverOAuthUrl(url) {
+  if (!url) return
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    // Window exists — send immediately if loaded, otherwise queue
+    if (mainWindow.webContents.isLoading()) {
+      mainWindow.webContents.once('did-finish-load', () => {
+        mainWindow.webContents.send('oauth-callback', url)
+      })
+    } else {
+      mainWindow.webContents.send('oauth-callback', url)
+    }
     mainWindow.show()
     mainWindow.focus()
+    pendingOAuthUrl = null
+  } else {
+    // Window not ready yet — queue it
+    pendingOAuthUrl = url
   }
+}
+
+// Handle OAuth deep link callback on Mac (open-url event)
+app.on('open-url', (_event, url) => {
+  deliverOAuthUrl(url)
+})
+
+// Windows: deep link arrives as argv of second instance
+app.on('second-instance', (_event, commandLine) => {
+  const url = commandLine.find(arg => arg.startsWith('focusguard://'))
+  if (url) deliverOAuthUrl(url)
 })
