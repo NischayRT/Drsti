@@ -28,8 +28,12 @@ Every two seconds while your timer is running, FocusGuard analyzes a frame from 
 
 ## Screenshots
 
-> Timer screen · Session report · Session history
-![alt text](image.png)
+· Timer screen 
+ ![alt text](image.png) ![alt text](image-1.png)
+· Session report 
+ ![alt text](image-3.png) ![alt text](image-2.png) 
+· Session history
+ ![alt text](image-4.png) ![alt text](image-5.png)
 
 ---
 
