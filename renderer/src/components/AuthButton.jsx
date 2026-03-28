@@ -15,12 +15,30 @@ export default function AuthButton() {
       setUser(session?.user ?? null)
     })
 
+    // Handle implicit flow — tokens land in URL hash when Supabase
+    // redirects to Site URL (http://localhost:3000/#access_token=...)
+    // instead of the deep link. Catches both dev and prod fallback.
+    const hash = window.location.hash
+    if (hash && hash.includes('access_token')) {
+      const params       = new URLSearchParams(hash.replace('#', ''))
+      const accessToken  = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+          .then(({ error }) => {
+            if (error) console.error('Hash token restore failed:', error.message)
+            window.history.replaceState(null, '', window.location.pathname)
+          })
+      }
+    }
+
+    // Handle OAuth deep link callback from Electron (drsti://auth/callback)
     if (window.electronAPI?.onOAuthCallback) {
       window.electronAPI.onOAuthCallback(async (url) => {
         try {
-          const urlObj    = new URL(url)
-          const code      = urlObj.searchParams.get('code')
-          const hashStr   = url.split('#')[1] || ''
+          const urlObj     = new URL(url)
+          const code       = urlObj.searchParams.get('code')
+          const hashStr    = url.split('#')[1] || ''
           const hashParams = new URLSearchParams(hashStr)
           const accessToken  = hashParams.get('access_token')
           const refreshToken = hashParams.get('refresh_token')
@@ -54,11 +72,11 @@ export default function AuthButton() {
   }, [])
 
   async function signInWithGoogle() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         skipBrowserRedirect: true,
-        redirectTo: 'focusguard://auth/callback',
+        redirectTo: 'drsti://auth/callback',
       },
     })
     if (data?.url) {
@@ -97,11 +115,9 @@ export default function AuthButton() {
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button onClick={() => setOpen(o => !o)} style={{
         display: 'flex', alignItems: 'center', gap: 8,
-        padding: '4px 10px 4px 4px',
-        borderRadius: 10, cursor: 'pointer',
+        padding: '4px 10px 4px 4px', borderRadius: 10, cursor: 'pointer',
         background: open ? 'var(--surface)' : 'transparent',
-        border: '1px solid var(--border-3)',
-        transition: 'all 0.15s',
+        border: '1px solid var(--border-3)', transition: 'all 0.15s',
       }}>
         {avatar
           ? <img src={avatar} alt="" style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }}/>
@@ -128,7 +144,6 @@ export default function AuthButton() {
         </svg>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', right: 0,
@@ -154,7 +169,7 @@ export default function AuthButton() {
             display: 'block', width: '100%', padding: '10px 14px', textAlign: 'left',
             background: 'transparent', border: 'none', cursor: 'pointer',
             fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.12em',
-            fontFamily: "'JetBrains Mono', monospace", textDecoration: 'none', transition: 'background 0.15s',
+            fontFamily: "'JetBrains Mono', monospace", transition: 'background 0.15s',
           }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}

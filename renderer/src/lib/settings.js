@@ -26,7 +26,7 @@ export function SettingsProvider({ children }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('focusguard-settings')
+      const saved = localStorage.getItem('drsti-settings')
       if (saved) setSettings(s => ({ ...s, ...JSON.parse(saved) }))
     } catch (_) {}
     setLoaded(true)
@@ -34,7 +34,7 @@ export function SettingsProvider({ children }) {
 
   useEffect(() => {
     if (!loaded) return
-    try { localStorage.setItem('focusguard-settings', JSON.stringify(settings)) } catch (_) {}
+    try { localStorage.setItem('drsti-settings', JSON.stringify(settings)) } catch (_) {}
   }, [settings, loaded])
 
   // Apply theme to document

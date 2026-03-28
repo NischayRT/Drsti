@@ -21,7 +21,7 @@ function App() {
   const [totalFocusTime, setTotalFocusTime] = useState(0)
 
   useEffect(() => {
-    const done = localStorage.getItem('focusguard-onboarded')
+    const done = localStorage.getItem('Drsti-onboarded')
     setOnboarded(!!done)
   }, [])
 
@@ -85,7 +85,7 @@ function App() {
               transition: 'all 0.5s',
             }}/>
           </div>
-          <span style={{ fontSize: 16, color: 'var(--text)', letterSpacing: '0.2em' }}>FOCUSGUARD</span>
+          <span style={{ fontSize: 16, color: 'var(--text)', letterSpacing: '0.2em' }}>Drsti</span>
         </div>
 
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
@@ -114,23 +114,40 @@ function App() {
 
       {/* Body */}
       <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', overflowX: 'hidden', minHeight: 0 }}>
+        
+        {/* TIMER CONTAINER WITH BACKGROUND */}
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '32px 40px', minWidth: 300, overflow: 'hidden', maxHeight: 600,
+          position: 'relative', /* <-- Added relative positioning */
         }}>
-          <Timer
-            onSessionComplete={handleSessionComplete}
-            onRunningChange={setTimerRunning}
-            focusScore={focusData?.focus_score ?? null}
-            isDistracted={isDistracted}
-            defaultDuration={settings.focusDuration}
-            defaultShortBreak={settings.shortBreakDuration}
-            defaultLongBreak={settings.longBreakDuration}
-            soundEnabled={settings.soundEnabled}
-            volume={settings.volume}
-          />
+          
+          
+          {/* Glowing Radial Gradient */}
+          <div style={{ 
+            position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', 
+            width: 350, height: 300, borderRadius: '50%', 
+            background: 'radial-gradient(circle, var(--accent-dim) 0%, transparent 75%)', 
+            pointerEvents: 'none' 
+          }}/>
+
+          {/* Wrapper to keep Timer on top of the background */}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <Timer
+              onSessionComplete={handleSessionComplete}
+              onRunningChange={setTimerRunning}
+              focusScore={focusData?.focus_score ?? null}
+              isDistracted={isDistracted}
+              defaultDuration={settings.focusDuration}
+              defaultShortBreak={settings.shortBreakDuration}
+              defaultLongBreak={settings.longBreakDuration}
+              soundEnabled={settings.soundEnabled}
+              volume={settings.volume}
+            />
+          </div>
         </div>
 
+        {/* Sidebar */}
         <div style={{
           width: 280, minWidth: 280, flexShrink: 0,
           borderLeft: '1px solid var(--border)', background: 'var(--bg-2)',

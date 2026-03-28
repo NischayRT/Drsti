@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'FocusGuard',
+  title: 'Drsti',
   description: 'AI-powered focus timer',
 }
 

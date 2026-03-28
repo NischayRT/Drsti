@@ -1,8 +1,8 @@
-# FocusGuard
+# Drsti
 
 > AI-powered focus intelligence for your desktop. Real-time gaze detection that tells you exactly when you're working and when you drift — down to the second.
 
-[![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NischayRT/FocusGuard/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NischayRT/Drsti/releases)
 [![Electron](https://img.shields.io/badge/Electron-28-47848F?style=flat-square&logo=electron)](https://electronjs.org)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python)](https://python.org)
@@ -12,15 +12,15 @@
 ---
 ## Download
 
-[![Download for Windows](https://img.shields.io/badge/Download-Windows%20Installer-0078D4?style=for-the-badge&logo=windows)](https://github.com/NischayRT/FocusGuard/releases/download/v1.0.0/FocusGuard-Setup-1.0.0.exe)
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%20Installer-0078D4?style=for-the-badge&logo=windows)](https://github.com/NischayRT/Drsti/releases/download/v1.0.0/Drsti-Setup-1.0.0.exe)
 
-[View all releases](https://github.com/NischayRT/FocusGuard/releases/tag/v1.0.0)
+[View all releases](https://github.com/NischayRT/Drsti/releases/tag/v1.0.0)
 
-## What is FocusGuard?
+## What is Drsti?
 
-FocusGuard is a desktop productivity application that uses your webcam and a local AI model to measure focus in real time. Unlike traditional Pomodoro timers that assume you are working during a session, FocusGuard actually detects whether you are looking at your screen — and records the exact seconds you were focused vs away.
+Drsti is a desktop productivity application that uses your webcam and a local AI model to measure focus in real time. Unlike traditional Pomodoro timers that assume you are working during a session, Drsti actually detects whether you are looking at your screen — and records the exact seconds you were focused vs away.
 
-Every two seconds while your timer is running, FocusGuard analyzes a frame from your webcam using MediaPipe FaceMesh to detect your head orientation and eye state. The result is a session report with precise metrics: focused time, away time, focus percentage, and a minute-by-minute breakdown.
+Every two seconds while your timer is running, Drsti analyzes a frame from your webcam using MediaPipe FaceMesh to detect your head orientation and eye state. The result is a session report with precise metrics: focused time, away time, focus percentage, and a minute-by-minute breakdown.
 
 **The AI runs entirely on your machine. No frames, no video, no biometrics are ever sent to any server.**
 
@@ -116,7 +116,7 @@ Every two seconds while your timer is running, FocusGuard analyzes a frame from 
 
 ### What model is being used?
 
-FocusGuard uses **MediaPipe Face Landmarker** (`face_landmarker.task`, float16, ~29MB), an open-source model developed and maintained by Google. It is part of the MediaPipe Tasks library and is publicly available at:
+Drsti uses **MediaPipe Face Landmarker** (`face_landmarker.task`, float16, ~29MB), an open-source model developed and maintained by Google. It is part of the MediaPipe Tasks library and is publicly available at:
 
 ```
 https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
@@ -124,9 +124,9 @@ https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/
 
 This model detects **468 facial landmarks** in a single RGB image. Landmarks include the positions of eyes, eyebrows, nose, lips, ears, and face contour — all represented as normalized (x, y, z) coordinates in the range 0–1.
 
-### What FocusGuard does with those 468 landmarks
+### What Drsti does with those 468 landmarks
 
-FocusGuard uses **only a small subset** of landmarks to compute three signals:
+Drsti uses **only a small subset** of landmarks to compute three signals:
 
 #### Signal 1 — Head Yaw (left/right rotation)
 
@@ -184,7 +184,7 @@ EAR        = vertical / horizontal
 
 ### What is NOT being done
 
-The model returns 468 landmark coordinates. FocusGuard reads **8 of them** for gaze/eye signals and ignores the other 460. Specifically:
+The model returns 468 landmark coordinates. Drsti reads **8 of them** for gaze/eye signals and ignores the other 460. Specifically:
 
 - No facial recognition or identity matching
 - No emotion detection or expression analysis
@@ -196,7 +196,7 @@ The classification of "focused vs away" is a simple geometric threshold check �
 
 ### Is this AI "surveillance"?
 
-FocusGuard uses the term "AI surveillance" to describe self-monitoring — the same principle as a gym tracking your reps. The AI watches your head orientation on your own device, on your behalf, to give you data about your own behavior. No third party sees this data. No behavioral profiles are built. The "surveillance" output is a number (0–100) and a boolean (focused/not) per 2-second window, stored only as aggregate session statistics.
+Drsti uses the term "AI surveillance" to describe self-monitoring — the same principle as a gym tracking your reps. The AI watches your head orientation on your own device, on your behalf, to give you data about your own behavior. No third party sees this data. No behavioral profiles are built. The "surveillance" output is a number (0–100) and a boolean (focused/not) per 2-second window, stored only as aggregate session statistics.
 
 ---
 
@@ -295,8 +295,8 @@ Output:  JSON response → React → UI update
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/NischayRT/FocusGuard.git
-cd FocusGuard
+git clone https://github.com/NischayRT/Drsti.git
+cd Drsti
 ```
 
 ### 2. Install root dependencies (Electron)
@@ -345,7 +345,7 @@ create policy "users own sessions"
 1. Supabase → Authentication → Providers → Google → Enable
 2. Create OAuth credentials at [console.cloud.google.com](https://console.cloud.google.com)
 3. Authorized redirect URI: `https://YOUR_PROJECT_ID.supabase.co/auth/v1/callback`
-4. Also add: `FocusGuard://auth/callback` to Supabase redirect URLs
+4. Also add: `Drsti://auth/callback` to Supabase redirect URLs
 
 **d) Create `.env.local`** in `renderer/`:
 
@@ -408,14 +408,14 @@ cd renderer && npm run build && cd ..
 # 2. Bundle Python API with PyInstaller
 cd python-api
 source venv/Scripts/activate
-pyinstaller FocusGuard.spec --clean --noconfirm
+pyinstaller Drsti.spec --clean --noconfirm
 cd ..
 
 # 3. Package with electron-builder
 npx electron-builder --win
 ```
 
-Output: `dist/FocusGuard-Setup-1.0.0.exe`
+Output: `dist/Drsti-Setup-1.0.0.exe`
 
 ---
 
