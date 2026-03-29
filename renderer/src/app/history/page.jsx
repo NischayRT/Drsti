@@ -67,7 +67,7 @@ function HistoryContent() {
     }}>
 
       {/* Nav */}
-      <div style={{
+      <div className="nav-header" style={{
         height: 56, display: 'flex', alignItems: 'center',
         padding: '0 28px', borderBottom: '1px solid var(--border)',
         background: 'var(--bg-2)',
@@ -86,19 +86,31 @@ function HistoryContent() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
           </svg>
-          <span style={{ fontSize: 14, letterSpacing: '0.14em' }}>BACK</span>
+          <span style={{ fontSize: 14, letterSpacing: '0.14em' }}>HOME</span>
         </button>
         <div style={{ flex: 1, textAlign: 'center' }}>
-          <span style={{ fontSize: 12, color: 'var(--text-2)', letterSpacing: '0.2em' }}>SESSION HISTORY</span>
+          <span className="hide-on-mobile" style={{ fontSize: 12, color: 'var(--text-2)', letterSpacing: '0.2em' }}>SESSION HISTORY</span>
         </div>
         {user && (
-          <span style={{ fontSize: 14, color: 'var(--text-3)' }}>
-            {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
-          </span>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '4px 10px', borderRadius: 8,
+            background: 'var(--surface)', border: '1px solid var(--border-2)',
+          }}>
+            {user.user_metadata?.avatar_url
+              ? <img src={user.user_metadata.avatar_url} alt="" style={{ width: 22, height: 22, borderRadius: 6 }}/>
+              : <div style={{ width: 22, height: 22, borderRadius: 6, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'var(--bg)', fontWeight: 600 }}>
+                  {(user.user_metadata?.full_name?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                </div>
+            }
+            <span style={{ fontSize: 13, color: 'var(--text-2)', fontWeight: 500 }}>
+              {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
+            </span>
+          </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', maxWidth: 900, margin: '0 auto', padding: 28, gap: 20, minHeight: 'calc(100vh - 56px)' }}>
+      <div className="history-container" style={{ display: 'flex', maxWidth: 900, margin: '0 auto', padding: 28, gap: 20, minHeight: 'calc(100vh - 56px)' }}>
 
         {/* Left: session list */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -134,6 +146,7 @@ function HistoryContent() {
                 return (
                   <div
                     key={s.id}
+                    className="session-item"
                     onClick={() => setSelected(isSelected ? null : s)}
                     style={{
                       padding: '14px 18px', borderRadius: 12, marginBottom: 6, cursor: 'pointer',
@@ -157,14 +170,14 @@ function HistoryContent() {
 
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 13, color: 'var(--text)' }}>
                           {fmtTime(s.duration)} session
                         </span>
                         <span style={{ fontSize: 12, color: 'var(--text-5)' }}>·</span>
                         <span style={{ fontSize: 14, color: 'var(--text-3)' }}>{fmtClock(s.created_at)}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 14, color: 'var(--accent)' }}>{fmtTime(s.focus_time)} focused</span>
                         <span style={{ fontSize: 14, color: 'var(--text-3)' }}>
                           {fmtTime(Math.max(0, s.duration - s.focus_time))} away
@@ -198,18 +211,24 @@ function HistoryContent() {
         </div>
 
         {/* Right: detail panel */}
-        <div style={{ width: 260, flexShrink: 0 }}>
+        <div className={`detail-panel ${selected ? 'open' : ''}`} style={{ width: 260, flexShrink: 0 }} onClick={e => e.target === e.currentTarget && setSelected(null)}>
           {selected ? (
-            <div style={{
+            <div className="detail-content" style={{
               position: 'sticky', top: 28,
               background: 'var(--bg-3)', border: '1px solid var(--border-2)',
               borderRadius: 16, overflow: 'hidden',
             }}>
               {/* Header */}
-              <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.16em', marginBottom: 6 }}>DETAILS</div>
-                <div style={{ fontSize: 12, color: 'var(--text-4)', marginBottom: 2 }}>{fmtDate(selected.created_at)}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{fmtClock(selected.created_at)}</div>
+              <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.16em', marginBottom: 6 }}>DETAILS</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-4)', marginBottom: 2 }}>{fmtDate(selected.created_at)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{fmtClock(selected.created_at)}</div>
+                </div>
+                <button className="mobile-close-btn" onClick={() => setSelected(null)} style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-4)', fontSize: 24, lineHeight: 1, padding: 0,
+                }}>×</button>
               </div>
 
               {/* Big score */}
@@ -257,7 +276,7 @@ function HistoryContent() {
               )}
             </div>
           ) : (
-            <div style={{
+            <div className="placeholder-panel" style={{
               padding: 24, background: 'var(--bg-3)', border: '1px solid var(--border)',
               borderRadius: 16, textAlign: 'center',
             }}>
@@ -268,6 +287,58 @@ function HistoryContent() {
           )}
         </div>
       </div>
+
+      <style>{`
+        .mobile-close-btn { display: none; }
+        
+        @media (max-width: 768px) {
+          .nav-header { padding: 0 16px !important; }
+          .hide-on-mobile { display: none !important; }
+          
+          .history-container { 
+            flex-direction: column; 
+            padding: 16px !important; 
+            gap: 16px !important; 
+          }
+          
+          .session-item { padding: 12px 14px !important; }
+          
+          .detail-panel { 
+            width: 100% !important; 
+            display: none; 
+          }
+          
+          .detail-panel.open {
+            display: flex;
+            position: fixed; 
+            inset: 0; 
+            z-index: 200;
+            background: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(8px);
+            padding: 20px; 
+            align-items: center; 
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+          }
+          
+          .detail-content {
+            width: 100% !important; 
+            max-width: 440px;
+            position: relative !important; 
+            top: 0 !important;
+            max-height: 85vh; 
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+            animation: scaleUp 0.2s ease;
+          }
+          
+          .placeholder-panel { display: none !important; }
+          .mobile-close-btn { display: block; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.95); } to { transform: scale(1); } }
+      `}</style>
     </div>
   )
 }

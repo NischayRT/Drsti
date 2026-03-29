@@ -125,7 +125,7 @@ function App() {
           
           {/* Glowing Radial Gradient */}
           <div style={{ 
-            position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', 
+            position: 'absolute', top: '43%', left: '50%', transform: 'translate(-50%, -50%)', 
             width: 350, height: 300, borderRadius: '50%', 
             background: 'radial-gradient(circle, var(--accent-dim) 0%, transparent 75%)', 
             pointerEvents: 'none' 

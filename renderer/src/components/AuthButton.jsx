@@ -3,6 +3,15 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
+function navigate(path) {
+  if (window.location.protocol === 'file:') {
+    const base = window.location.href.split('/').slice(0, -1).join('/')
+    window.location.href = base + '/' + path + '/index.html'
+  } else {
+    window.location.href = '/' + path
+  }
+}
+
 export default function AuthButton() {
   const [user,    setUser]    = useState(null)
   const [loading, setLoading] = useState(true)
@@ -15,12 +24,9 @@ export default function AuthButton() {
       setUser(session?.user ?? null)
     })
 
-    // Handle implicit flow — tokens land in URL hash when Supabase
-    // redirects to Site URL (http://localhost:3000/#access_token=...)
-    // instead of the deep link. Catches both dev and prod fallback.
     const hash = window.location.hash
     if (hash && hash.includes('access_token')) {
-      const params       = new URLSearchParams(hash.replace('#', ''))
+      const params = new URLSearchParams(hash.replace('#', ''))
       const accessToken  = params.get('access_token')
       const refreshToken = params.get('refresh_token')
       if (accessToken && refreshToken) {
@@ -32,7 +38,6 @@ export default function AuthButton() {
       }
     }
 
-    // Handle OAuth deep link callback from Electron (drsti://auth/callback)
     if (window.electronAPI?.onOAuthCallback) {
       window.electronAPI.onOAuthCallback(async (url) => {
         try {
@@ -42,15 +47,11 @@ export default function AuthButton() {
           const hashParams = new URLSearchParams(hashStr)
           const accessToken  = hashParams.get('access_token')
           const refreshToken = hashParams.get('refresh_token')
-
           if (code) {
             const { error } = await supabase.auth.exchangeCodeForSession(code)
             if (error) console.error('OAuth code exchange failed:', error.message)
           } else if (accessToken && refreshToken) {
-            const { error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            })
+            const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
             if (error) console.error('OAuth setSession failed:', error.message)
           }
         } catch (err) { console.error('OAuth callback error:', err) }
@@ -74,10 +75,7 @@ export default function AuthButton() {
   async function signInWithGoogle() {
     const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        skipBrowserRedirect: true,
-        redirectTo: 'drsti://auth/callback',
-      },
+      options: { skipBrowserRedirect: true, redirectTo: 'eyeris://auth/callback' },
     })
     if (data?.url) {
       if (window.electronAPI?.openExternal) window.electronAPI.openExternal(data.url)
@@ -85,20 +83,16 @@ export default function AuthButton() {
     }
   }
 
-  async function signOut() {
-    await supabase.auth.signOut()
-    setOpen(false)
-  }
+  async function signOut() { await supabase.auth.signOut(); setOpen(false) }
 
   if (loading) return <div style={{ width: 32, height: 32 }}/>
 
   if (!user) return (
     <button onClick={signInWithGoogle} style={{
-      display: 'flex', alignItems: 'center', gap: 8,
-      padding: '6px 14px', borderRadius: 8, cursor: 'pointer',
-      background: 'transparent', border: '1px solid var(--border-3)',
-      color: 'var(--text-4)', fontFamily: "'JetBrains Mono', monospace",
-      fontSize: 14, letterSpacing: '0.12em', transition: 'all 0.15s',
+      display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 8,
+      cursor: 'pointer', background: 'transparent', border: '1px solid var(--border-3)',
+      color: 'var(--text-4)', fontFamily: "'JetBrains Mono', monospace", fontSize: 14,
+      letterSpacing: '0.12em', transition: 'all 0.15s',
     }}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M15 3H9a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/>
@@ -111,31 +105,32 @@ export default function AuthButton() {
   const name   = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'U'
   const avatar = user.user_metadata?.avatar_url
 
+  const menuItem = (label, onClick) => (
+    <button onClick={() => { setOpen(false); onClick() }} style={{
+      display: 'block', width: '100%', padding: '10px 14px', textAlign: 'left',
+      background: 'transparent', border: 'none', cursor: 'pointer',
+      fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.12em',
+      fontFamily: "'JetBrains Mono', monospace", transition: 'background 0.15s',
+    }}
+      onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >{label}</button>
+  )
+
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button onClick={() => setOpen(o => !o)} style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '4px 10px 4px 4px', borderRadius: 10, cursor: 'pointer',
-        background: open ? 'var(--surface)' : 'transparent',
+        display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px 4px 4px',
+        borderRadius: 10, cursor: 'pointer', background: open ? 'var(--surface)' : 'transparent',
         border: '1px solid var(--border-3)', transition: 'all 0.15s',
       }}>
         {avatar
           ? <img src={avatar} alt="" style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }}/>
-          : (
-            <div style={{
-              width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-              background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, color: 'var(--bg)', fontFamily: "'JetBrains Mono', monospace",
-            }}>
+          : <div style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--bg)', fontFamily: "'JetBrains Mono', monospace" }}>
               {name[0].toUpperCase()}
             </div>
-          )
         }
-        <span style={{
-          fontSize: 12, color: 'var(--text-3)',
-          maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          fontFamily: "'JetBrains Mono', monospace",
-        }}>
+        <span style={{ fontSize: 12, color: 'var(--text-3)', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: "'JetBrains Mono', monospace" }}>
           {name}
         </span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" strokeWidth="2"
@@ -148,45 +143,24 @@ export default function AuthButton() {
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', right: 0,
           background: 'var(--bg-3)', border: '1px solid var(--border-3)',
-          borderRadius: 10, overflow: 'hidden', minWidth: 160, zIndex: 100,
+          borderRadius: 10, overflow: 'hidden', minWidth: 170, zIndex: 100,
           boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         }}>
           <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ fontSize: 12, color: 'var(--text-4)', letterSpacing: '0.12em', marginBottom: 4 }}>SIGNED IN AS</div>
-            <div style={{ fontSize: 12, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user.email}
-            </div>
+            <div style={{ fontSize: 12, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
           </div>
-          <button onClick={() => {
-            setOpen(false)
-            if (window.location.protocol === 'file:') {
-              const base = window.location.href.split('/').slice(0, -1).join('/')
-              window.location.href = base + '/history/index.html'
-            } else {
-              window.location.href = '/history'
-            }
-          }} style={{
-            display: 'block', width: '100%', padding: '10px 14px', textAlign: 'left',
-            background: 'transparent', border: 'none', cursor: 'pointer',
+          {menuItem('ANALYTICS',   () => navigate('analytics'))}
+          {menuItem('MY SESSIONS', () => navigate('history'))}
+          <button onClick={signOut} style={{
+            width: '100%', padding: '10px 14px', textAlign: 'left', background: 'transparent',
+            border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer',
             fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.12em',
             fontFamily: "'JetBrains Mono', monospace", transition: 'background 0.15s',
           }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            MY SESSIONS
-          </button>
-          <button onClick={signOut} style={{
-            width: '100%', padding: '10px 14px', textAlign: 'left',
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            fontSize: 14, color: 'var(--text-3)', letterSpacing: '0.12em',
-            fontFamily: "'JetBrains Mono', monospace", borderTop: '1px solid var(--border)', transition: 'background 0.15s',
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            SIGN OUT
-          </button>
+          >SIGN OUT</button>
         </div>
       )}
     </div>

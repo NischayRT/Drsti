@@ -7,20 +7,23 @@
 /* ── Dark theme (default) ── */
 :root, [data-theme="dark"] {
   --bg:         #080808;
-  --bg-2:       #0a0a0a;
-  --bg-3:       #0d0d0d;
-  --surface:    #111111;
-  --border:     #141414;
-  --border-2:   #1e1e1e;
-  --border-3:   #252525;
-  --text:       #e8e8e8;
-  --text-2:     #a0a0a0;
-  --text-3:     #585858;
-  --text-4:     #383838;
-  --text-5:     #282828;
+  --bg-2:       #0d0d0d;
+  --bg-3:       #121212;
+  --surface:    #181818;
+  --border:     #1e1e1e;
+  --border-2:   #2a2a2a;
+  --border-3:   #363636;
+
+  /* IMPROVED: Much more readable text hierarchy */
+  --text:       #f0f0f0;
+  --text-2:     #c8c8c8;
+  --text-3:     #909090;
+  --text-4:     #606060;
+  --text-5:     #404040;
+
   --accent:     #c8f04a;
-  --accent-dim: rgba(200,240,74,0.12);
-  --red:        #f06a4a;
+  --accent-dim: rgba(200,240,74,0.10);
+  --red:        #f07060;
   --yellow:     #f0c84a;
   --teal:       #4af0d4;
 }
@@ -33,19 +36,22 @@
   --surface:    #ffffff;
   --border:     #e0e0da;
   --border-2:   #d0d0ca;
-  --border-3:   #c0c0ba;
-  --text:       #111111;
-  --text-2:     #444444;
-  --text-3:     #888888;
-  --text-4:     #aaaaaa;
-  --text-5:     #cccccc;
+  --border-3:   #b8b8b0;
+
+  --text:       #0e0e0e;
+  --text-2:     #2a2a2a;
+  --text-3:     #555555;
+  --text-4:     #888888;
+  --text-5:     #aaaaaa;
+
   --accent:     #5a9e00;
   --accent-dim: rgba(90,158,0,0.10);
-  --red:        #d44020;
-  --yellow:     #c08000;
-  --teal:       #0090a0;
+  --red:        #cc3a1a;
+  --yellow:     #b07800;
+  --teal:       #007a88;
 }
 
+/* ── Reset ── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -53,22 +59,41 @@ html, body {
   background-color: var(--bg);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   user-select: none;
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* ── Responsive base font size ── */
+html { font-size: 14px; }
+@media (max-width: 768px) { html { font-size: 13px; } }
+@media (max-width: 480px) { html { font-size: 12px; } }
+
+/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-2); }
 ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
 
+/* ── Utilities ── */
 .glow-accent {
   box-shadow: 0 0 20px rgba(200,240,74,0.12), 0 0 60px rgba(200,240,74,0.04);
 }
 .timer-arc { transition: stroke-dashoffset 1s linear; }
 
+/* ── Responsive sidebar ── */
 @media (max-width: 580px) {
   .sideBar { width: 100% !important; }
+}
+
+/* ── Responsive font size utilities ── */
+.text-label {
+  font-size: clamp(10px, 1.5vw, 12px);
+  letter-spacing: 0.16em;
+}
+.text-value {
+  font-size: clamp(13px, 2vw, 15px);
+}
+.text-body {
+  font-size: clamp(12px, 1.8vw, 14px);
 }
