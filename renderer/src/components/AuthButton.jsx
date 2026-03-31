@@ -5,10 +5,16 @@ import { supabase } from '../lib/supabase'
 
 function navigate(path) {
   if (window.location.protocol === 'file:') {
-    const base = window.location.href.split('/').slice(0, -1).join('/')
-    window.location.href = base + '/' + path + '/index.html'
+    let href = window.location.href
+    // Strip any known sub-page to get the true root
+    href = href
+      .replace('/history/index.html', '')
+      .replace('/analytics/index.html', '')
+      .replace(/\/index\.html$/, '')
+    if (path === '/') window.location.href = href + '/index.html'
+    else window.location.href = href + '/' + path + '/index.html'
   } else {
-    window.location.href = '/' + path
+    window.location.href = path === '/' ? '/' : '/' + path
   }
 }
 

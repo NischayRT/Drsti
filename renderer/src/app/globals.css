@@ -97,3 +97,7 @@ html { font-size: 14px; }
 .text-body {
   font-size: clamp(12px, 1.8vw, 14px);
 }
+@media (max-width: 580px) 
+{ 
+  .focusPill { display: none !important; } 
+}

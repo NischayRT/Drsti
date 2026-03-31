@@ -96,11 +96,14 @@ export default function WebcamPreview({ active, onScoreUpdate }) {
         if (prevDistractedRef.current !== null) {
           if (isDistracted && !prevDistractedRef.current) {
             playDistractionBeep()
-            if (window.electronAPI) {
+            if (window.electronAPI?.notifyDistraction) {
               window.electronAPI.notifyDistraction("You drifted — come back!")
             }
           } else if (!isDistracted && prevDistractedRef.current) {
             playRefocusBeep()
+            if (window.electronAPI?.notifyRefocus) {
+              window.electronAPI.notifyRefocus("Back in focus — keep going.")
+            }
           }
         }
         prevDistractedRef.current = isDistracted

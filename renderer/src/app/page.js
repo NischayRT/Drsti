@@ -8,7 +8,7 @@ import ReportOverlay from '../components/ReportOverlay'
 import AuthButton from '../components/AuthButton'
 import Onboarding from '../components/Onboarding'
 import { SettingsProvider, useSettings } from '../lib/settings'
-import { supabase } from '../lib/supabase'
+import { supabase, getUserSessions } from '../lib/supabase'
 
 function App() {
   const { settings, thresholds } = useSettings()
@@ -19,6 +19,7 @@ function App() {
   const [user,           setUser]           = useState(null)
   const [onboarded,      setOnboarded]      = useState(true)
   const [totalFocusTime, setTotalFocusTime] = useState(0)
+  const [dayStreak,      setDayStreak]      = useState(0)
 
   useEffect(() => {
     const done = localStorage.getItem('Drsti-onboarded')
@@ -38,6 +39,35 @@ function App() {
     window.addEventListener('timer-state', handler)
     return () => window.removeEventListener('timer-state', handler)
   }, [])
+
+  // Calculate actual daily streak whenever the user loads or finishes a new session
+  useEffect(() => {
+    if (!user) return
+    getUserSessions(100).then(({ data }) => {
+      if (!data) return
+      
+      const days = [...new Set(data.map(s => new Date(s.created_at).toDateString()))]
+        .map(d => new Date(d)).sort((a, b) => b - a)
+
+      let current = 0
+      if (days.length > 0) {
+        const today = new Date(); today.setHours(0, 0, 0, 0)
+        const latest = new Date(days[0]); latest.setHours(0, 0, 0, 0)
+        const diff = Math.round((today - latest) / 86400000)
+
+        if (diff <= 1) {
+          current = 1
+          for (let i = 1; i < days.length; i++) {
+            const d1 = new Date(days[i - 1]); d1.setHours(0,0,0,0)
+            const d2 = new Date(days[i]);     d2.setHours(0,0,0,0)
+            if (Math.round((d1 - d2) / 86400000) === 1) current++
+            else break
+          }
+        }
+      }
+      setDayStreak(current)
+    })
+  }, [user, report])
 
   function handleSessionComplete(count, sessionReport) {
     setSessions(count)
@@ -88,7 +118,7 @@ function App() {
           <span style={{ fontSize: 16, color: 'var(--text)', letterSpacing: '0.2em' }}>Drsti</span>
         </div>
 
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+        <div className="focusPill" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           {timerRunning && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 7,
@@ -107,7 +137,22 @@ function App() {
           )}
         </div>
 
-        <div style={{ marginLeft: 'auto', WebkitAppRegion: 'no-drag', display: 'flex', alignItems: 'center' }}>
+        {/* Right Nav Section */}
+        <div style={{ marginLeft: 'auto', WebkitAppRegion: 'no-drag', display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* External SVG Streak Widget */}
+          {user && (
+            <div title="Current Streak" style={{ 
+              display: 'flex', alignItems: 'center', gap: 8, 
+              padding: '4px 12px 4px 10px', background: 'var(--bg-3)', 
+              border: '1px solid var(--border-2)', borderRadius: 20 
+            }}>
+              🔥
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)' }}>
+                {dayStreak} <span style={{ color: 'var(--text-4)', fontSize: 12 }}>Day{dayStreak !== 1 ? 's' : ''}</span>
+              </span>
+            </div>
+          )}
+          
           <AuthButton />
         </div>
       </div>
@@ -119,17 +164,26 @@ function App() {
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '32px 40px', minWidth: 300, overflow: 'hidden', maxHeight: 600,
-          position: 'relative', /* <-- Added relative positioning */
+          position: 'relative', 
         }}>
           
+          {/* Grid Background */}
+          <div style={{ 
+            position: 'absolute', inset: 0, opacity: 0.04, 
+            backgroundImage: 'linear-gradient(var(--text) 1px, transparent 1px), linear-gradient(90deg, var(--text) 1px, transparent 1px)', 
+            backgroundSize: '60px 60px', pointerEvents: 'none' 
+          }}/>
           
-          {/* Glowing Radial Gradient */}
+          {/* Glowing Radial Gradient - INACTIVE (Glows Inside the Timer) */}
           <div style={{ 
             position: 'absolute', top: '43%', left: '50%', transform: 'translate(-50%, -50%)', 
-            width: 350, height: 300, borderRadius: '50%', 
-            background: 'radial-gradient(circle, var(--accent-dim) 0%, transparent 75%)', 
-            pointerEvents: 'none' 
+            width: 270, height: 270, borderRadius: '50%', 
+            background: 'radial-gradient(circle, var(--accent-dim) 0%, transparent 80%)', 
+            pointerEvents: 'none',
+            opacity: timerRunning ? 0 : 1,
+            transition: 'opacity 0.6s ease'
           }}/>
+
 
           {/* Wrapper to keep Timer on top of the background */}
           <div style={{ position: 'relative', zIndex: 1 }}>
