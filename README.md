@@ -404,16 +404,4 @@ Configurable in Settings → AI Sensitivity.
 
 ---
 
-## Roadmap
-
-- [x] Phase 1 — Windows installer (.exe)
-- [x] Phase 2 — Onboarding, settings, light/dark theme
-- [x] Phase 3 — Analytics dashboard (5 charts, heatmap, streak)
-- [ ] Phase 4 — Auto-updater, error reporting, beta release
-- [ ] Phase 5 — Personal gaze calibration
-- [ ] Mac (.dmg) and Linux (.AppImage) builds
-- [ ] Chrome extension port (MediaPipe WASM)
-
----
-
 Built by **Nischay Reddy Thigulla** — [GitHub](https://github.com/NischayRT)
